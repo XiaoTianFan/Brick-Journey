@@ -5,6 +5,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { Vector3 } from 'three'
 import SpiralGroup from './SpiralGroup'
+import { GitHubRepoConfig } from '../utils/githubImageFetcher'
 
 // Camera controller component
 function CameraController({ isInside, setIsInside }: { isInside: boolean; setIsInside: (inside: boolean) => void }) {
@@ -15,7 +16,7 @@ function CameraController({ isInside, setIsInside }: { isInside: boolean; setIsI
   const orbitControlsRef = useRef<any>(null)
   
   // Define camera positions for more dramatic effect
-  const outsidePosition = new Vector3(0, 2, 12) // Slightly elevated and further back
+  const outsidePosition = new Vector3(0, 2, 16) // Slightly elevated and further back
   const insidePosition = new Vector3(0, 0, 0) // Inside the spiral center
   
   // Define target positions for orbit controls
@@ -123,8 +124,24 @@ function CameraController({ isInside, setIsInside }: { isInside: boolean; setIsI
   )
 }
 
-export default function HoldSpiralScene() {
+interface HoldSpiralSceneProps {
+  githubConfig?: GitHubRepoConfig  // Optional: if provided, use GitHub images
+  showFallback?: boolean
+  onLoadingChange?: (loading: boolean) => void // Callback to notify parent of loading state
+}
+
+export default function HoldSpiralScene({ 
+  githubConfig,
+  showFallback = true,
+  onLoadingChange
+}: HoldSpiralSceneProps = {}) {
   const [isInside, setIsInside] = useState(false)
+  
+  console.log('🎬 HoldSpiralScene render:', { 
+    hasGithubConfig: !!githubConfig, 
+    githubConfig, 
+    showFallback 
+  })
   
   return (
     <div className="relative w-full h-full">
@@ -156,7 +173,11 @@ export default function HoldSpiralScene() {
         
         {/* Suspense for async loading */}
         <Suspense fallback={null}>
-          <SpiralGroup />
+          <SpiralGroup 
+            githubConfig={githubConfig}
+            useFallbackImages={showFallback}
+            onLoadingChange={onLoadingChange}
+          />
         </Suspense>
       </Canvas>
       
@@ -165,6 +186,16 @@ export default function HoldSpiralScene() {
         <div>{isInside ? 'Click to exit spiral' : 'Click to enter spiral'}</div>
         <div className="text-xs mt-1 opacity-50">Drag to rotate • Scroll to zoom</div>
       </div>
+      
+      {/* GitHub repo indicator - Hidden */}
+      {/* 
+      {githubConfig && (
+        <div className="absolute top-12 right-4 z-10 text-white text-xs font-light opacity-50">
+          <div>Images from: {githubConfig.owner}/{githubConfig.repo}</div>
+          {githubConfig.path && <div>Path: {githubConfig.path}</div>}
+        </div>
+      )}
+      */}
       
       {/* Visual state indicator */}
       <div className="absolute bottom-4 left-4 z-10 text-white text-xs font-light opacity-50">

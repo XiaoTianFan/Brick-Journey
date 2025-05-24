@@ -7,7 +7,7 @@ export interface SpiralPosition {
 
 export function getSpiralPosition(t: number, index: number): SpiralPosition {
   // Spiral parameters for a tighter, more dense spiral
-  const baseRadius = 5 // Reduced base radius
+  const baseRadius = 8 // Reduced base radius
   const radiusVariation = 0.4 // Reduced variation for more consistent spacing
   const radius = baseRadius + Math.sin(t * 1.5) * radiusVariation
   
