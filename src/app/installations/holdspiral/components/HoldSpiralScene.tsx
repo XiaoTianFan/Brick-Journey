@@ -15,8 +15,12 @@ function CameraController({ isInside, setIsInside }: { isInside: boolean; setIsI
   const orbitControlsRef = useRef<any>(null)
   
   // Define camera positions for more dramatic effect
-  const outsidePosition = new Vector3(2, 2, 12) // Slightly elevated and further back
-  const insidePosition = new Vector3(0, 2, 0.5) // Inside the spiral, slightly below center
+  const outsidePosition = new Vector3(0, 2, 12) // Slightly elevated and further back
+  const insidePosition = new Vector3(0, 0, 0) // Inside the spiral center
+  
+  // Define target positions for orbit controls
+  const outsideTarget = new Vector3(0, 0, 0)
+  const insideTarget = new Vector3(0, 0, 0) // Look slightly upward when inside
   
   // Set initial positions
   React.useEffect(() => {
@@ -48,12 +52,20 @@ function CameraController({ isInside, setIsInside }: { isInside: boolean; setIsI
       if (isMouseDown && mouseMovedDistance < 5 && !isTransitioning.current) {
         // Only toggle if it was a click (not drag) and not transitioning
         isTransitioning.current = true
-        setIsInside(!isInside)
-        targetPosition.current.copy(isInside ? outsidePosition : insidePosition)
+        const newIsInside = !isInside
+        setIsInside(newIsInside)
         
-        // Disable orbit controls during transition
+        // Set new target position
+        targetPosition.current.copy(newIsInside ? insidePosition : outsidePosition)
+        
+        // Immediately update orbit controls target and settings
         if (orbitControlsRef.current) {
           orbitControlsRef.current.enabled = false
+          
+          // Update target immediately
+          const newTarget = newIsInside ? insideTarget : outsideTarget
+          orbitControlsRef.current.target.copy(newTarget)
+          orbitControlsRef.current.update()
         }
         
         // Reset transition flag and re-enable controls after animation
@@ -61,8 +73,6 @@ function CameraController({ isInside, setIsInside }: { isInside: boolean; setIsI
           isTransitioning.current = false
           if (orbitControlsRef.current) {
             orbitControlsRef.current.enabled = true
-            // Update orbit controls target based on new view
-            orbitControlsRef.current.target.set(0, isInside ? 2 : 0, 0)
             orbitControlsRef.current.update()
           }
         }, 2000)
@@ -83,11 +93,15 @@ function CameraController({ isInside, setIsInside }: { isInside: boolean; setIsI
   
   // Smooth camera animation during transitions
   useFrame(() => {
-    if (isTransitioning.current) {
+    if (isTransitioning.current && orbitControlsRef.current) {
       // Lerp camera position for smooth transition
-      const lerpSpeed = 0.03
+      const lerpSpeed = 0.04
       currentPosition.current.lerp(targetPosition.current, lerpSpeed)
       camera.position.copy(currentPosition.current)
+      
+      // Update orbit controls object3d to maintain sync
+      orbitControlsRef.current.object = camera
+      orbitControlsRef.current.update()
     }
   })
   
@@ -97,11 +111,14 @@ function CameraController({ isInside, setIsInside }: { isInside: boolean; setIsI
       enableZoom={true}
       enablePan={true}
       enableRotate={true}
-      target={[0, isInside ? 2 : 0, 0]}
-      minDistance={isInside ? 0.1 : 2}
-      maxDistance={isInside ? 3 : 25}
+      target={isInside ? insideTarget : outsideTarget}
+      minDistance={isInside ? 0.5 : 2}
+      maxDistance={isInside ? 4 : 25}
       enableDamping={true}
       dampingFactor={0.05}
+      // Better angle limits for inside view
+      maxPolarAngle={isInside ? Math.PI : Math.PI}
+      minPolarAngle={isInside ? 0 : 0}
     />
   )
 }
@@ -113,8 +130,8 @@ export default function HoldSpiralScene() {
     <div className="relative w-full h-full">
       <Canvas
         camera={{ 
-          position: [2, 2, 12], 
-          fov: isInside ? 80 : 60
+          position: [0, 2, 12], 
+          fov: isInside ? 75 : 60
         }}
         style={{ 
           width: '100%', 
