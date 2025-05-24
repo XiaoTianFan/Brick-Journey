@@ -1,11 +1,9 @@
-import * as THREE from 'three'
-
 export interface SpiralPosition {
   position: [number, number, number]
   rotation: [number, number, number]
 }
 
-export function getSpiralPosition(t: number, index: number): SpiralPosition {
+export function getSpiralPosition(t: number): SpiralPosition {
   // Spiral parameters for a tighter, more dense spiral
   const baseRadius = 8 // Reduced base radius
   const radiusVariation = 0.4 // Reduced variation for more consistent spacing

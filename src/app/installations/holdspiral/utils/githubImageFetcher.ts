@@ -1,3 +1,9 @@
+interface GitHubApiFile {
+  name: string
+  download_url: string
+  sha: string
+}
+
 export interface GitHubImage {
   name: string
   download_url: string
@@ -55,11 +61,11 @@ export class GitHubImageFetcher {
       // Filter for image files
       const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg']
       const images: GitHubImage[] = files
-        .filter((file: any) => {
+        .filter((file: GitHubApiFile) => {
           const extension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
           return imageExtensions.includes(extension) && file.download_url
         })
-        .map((file: any) => ({
+        .map((file: GitHubApiFile) => ({
           name: file.name,
           download_url: file.download_url,
           sha: file.sha

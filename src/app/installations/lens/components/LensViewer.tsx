@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import CameraFrame from './CameraFrame'
-import { GitHubRepoConfig, GitHubImageFetcher } from '../../holdspiral/utils/githubImageFetcher'
+import { GitHubRepoConfig, GitHubImageFetcher, GitHubImage } from '../../holdspiral/utils/githubImageFetcher'
 
 interface LensViewerProps {
   githubConfig: GitHubRepoConfig
@@ -10,7 +10,7 @@ interface LensViewerProps {
 }
 
 export default function LensViewer({ githubConfig, onLoadingChange }: LensViewerProps) {
-  const [images, setImages] = useState<any[]>([])
+  const [images, setImages] = useState<GitHubImage[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

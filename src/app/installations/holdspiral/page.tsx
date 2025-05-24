@@ -18,13 +18,6 @@ export default function HoldSpiralPage() {
   const [useGitHub, setUseGitHub] = useState(true) // Default to GitHub images
   const [isLoading, setIsLoading] = useState(false)
   
-  const handleToggle = () => {
-    const newValue = !useGitHub
-    console.log('🔄 Toggle button clicked:', { from: useGitHub, to: newValue })
-    console.log('🔧 GitHub config:', githubConfig)
-    setUseGitHub(newValue)
-  }
-  
   const handleLoadingChange = (loading: boolean) => {
     console.log('📡 Loading state changed:', loading)
     setIsLoading(loading)

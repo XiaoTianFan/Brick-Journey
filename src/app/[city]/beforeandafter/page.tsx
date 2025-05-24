@@ -1,7 +1,9 @@
-export default function BeforeAndAfterPage({ params }: { params: { city: string } }) {
+export default async function BeforeAndAfterPage({ params }: { params: Promise<{ city: string }> }) {
+  const { city } = await params;
+  
   return (
     <div>
-      <h1>Before and After Page for {params.city}</h1>
+      <h1>Before and After Page for {city}</h1>
     </div>
   );
 } 

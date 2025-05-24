@@ -150,7 +150,7 @@ export default function SpiralGroup({
     
     for (let i = 0; i < numPanels; i++) {
       const t = (i / numPanels) * Math.PI * 8 // 8 full rotations
-      positions.push(getSpiralPosition(t, i))
+      positions.push(getSpiralPosition(t))
     }
     
     return positions

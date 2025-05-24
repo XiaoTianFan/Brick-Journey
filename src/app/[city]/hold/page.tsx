@@ -1,7 +1,9 @@
-export default function HoldPage({ params }: { params: { city: string } }) {
+export default async function HoldPage({ params }: { params: Promise<{ city: string }> }) {
+  const { city } = await params;
+  
   return (
     <div>
-      <h1>Hold Page for {params.city}</h1>
+      <h1>Hold Page for {city}</h1>
     </div>
   );
 } 

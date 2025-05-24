@@ -4,6 +4,7 @@ import React, { Suspense, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { Vector3 } from 'three'
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import SpiralGroup from './SpiralGroup'
 import { GitHubRepoConfig } from '../utils/githubImageFetcher'
 
@@ -13,7 +14,7 @@ function CameraController({ isInside, setIsInside }: { isInside: boolean; setIsI
   const targetPosition = useRef(new Vector3())
   const currentPosition = useRef(new Vector3())
   const isTransitioning = useRef(false)
-  const orbitControlsRef = useRef<any>(null)
+  const orbitControlsRef = useRef<OrbitControlsImpl | null>(null)
   
   // Define camera positions for more dramatic effect
   const outsidePosition = new Vector3(0, 2, 16) // Slightly elevated and further back

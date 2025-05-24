@@ -1,4 +1,20 @@
-import type { Sketch } from '@p5-wrapper/react';
+import React, { useRef, useEffect } from 'react'
+import type { Sketch } from '@p5-wrapper/react'
+
+// Type for p5 instance - using a more specific type
+interface P5Instance {
+  width: number
+  height: number
+  mouseX: number
+  mouseY: number
+  windowWidth: number
+  windowHeight: number
+  createCanvas: (width: number, height: number) => void
+  background: (r: number, g?: number, b?: number) => void
+  fill: (r: number, g?: number, b?: number) => void
+  rect: (x: number, y: number, w: number, h: number) => void
+  [key: string]: any // Allow other p5 methods
+}
 
 // --- Configuration ---
 const TARGET_ROWS = 2; // Fixed number of rows
@@ -29,11 +45,11 @@ interface Program {
   reset: () => void;
   update: () => void;
   isDone: () => boolean;
-  p: any; // p5 instance
+  p: P5Instance; // p5 instance
 }
 
 class ScanByLineProgram implements Program {
-  p: any;
+  p: P5Instance;
   private updateGridState: (row: number, col: number, value: number) => void;
   private getGridState: () => number[][];
   private rows: number;
@@ -47,7 +63,7 @@ class ScanByLineProgram implements Program {
   private frameCounter: number = 0; // For animation speed control
 
   constructor(
-    p: any,
+    p: P5Instance,
     updateGridState: (row: number, col: number, value: number) => void,
     getGridState: () => number[][],
     rows: number,
@@ -165,7 +181,7 @@ class ScanByLineProgram implements Program {
 }
 
 class ScanBySpiralProgram implements Program {
-  p: any;
+  p: P5Instance;
   private updateGridState: (row: number, col: number, value: number) => void;
   private getGridState: () => number[][];
   private rows: number;
@@ -183,7 +199,7 @@ class ScanBySpiralProgram implements Program {
   private fillIndex: number = 0; // For spiral filling
 
   constructor(
-    p: any,
+    p: P5Instance,
     updateGridState: (row: number, col: number, value: number) => void,
     getGridState: () => number[][],
     rows: number,
@@ -336,7 +352,7 @@ class ScanBySpiralProgram implements Program {
 }
 
 class ScanByDiagonalProgram implements Program {
-  p: any;
+  p: P5Instance;
   private updateGridState: (row: number, col: number, value: number) => void;
   private getGridState: () => number[][];
   private rows: number;
@@ -355,7 +371,7 @@ class ScanByDiagonalProgram implements Program {
   private fillIndex: number = 0; // For diagonal filling
 
   constructor(
-    p: any,
+    p: P5Instance,
     updateGridState: (row: number, col: number, value: number) => void,
     getGridState: () => number[][],
     rows: number,
@@ -489,7 +505,7 @@ class ScanByDiagonalProgram implements Program {
 }
 
 class ScanByRadiationProgram implements Program {
-  p: any;
+  p: P5Instance;
   private updateGridState: (row: number, col: number, value: number) => void;
   private getGridState: () => number[][];
   private rows: number;
@@ -508,7 +524,7 @@ class ScanByRadiationProgram implements Program {
   private fillIndex: number = 0;
 
   constructor(
-    p: any,
+    p: P5Instance,
     updateGridState: (row: number, col: number, value: number) => void,
     getGridState: () => number[][],
     rows: number,
@@ -672,7 +688,7 @@ class ScanByRadiationProgram implements Program {
 }
 
 class SwipeByLineProgram implements Program {
-  p: any;
+  p: P5Instance;
   private updateGridState: (row: number, col: number, value: number) => void;
   private getGridState: () => number[][];
   private rows: number;
@@ -692,7 +708,7 @@ class SwipeByLineProgram implements Program {
   private fillRow: number = 0;
 
   constructor(
-    p: any,
+    p: P5Instance,
     updateGridState: (row: number, col: number, value: number) => void,
     getGridState: () => number[][],
     rows: number,
@@ -845,7 +861,7 @@ class SwipeByLineProgram implements Program {
 }
 
 class SwipeByDiagonalProgram implements Program {
-  p: any;
+  p: P5Instance;
   private updateGridState: (row: number, col: number, value: number) => void;
   private getGridState: () => number[][];
   private rows: number;
@@ -868,7 +884,7 @@ class SwipeByDiagonalProgram implements Program {
   private currentFillDiagonal: number = 0; // Track which diagonal line we're filling
 
   constructor(
-    p: any,
+    p: P5Instance,
     updateGridState: (row: number, col: number, value: number) => void,
     getGridState: () => number[][],
     rows: number,
@@ -1101,7 +1117,7 @@ class SwipeByDiagonalProgram implements Program {
 }
 
 class SwipeByRadiationProgram implements Program {
-  p: any;
+  p: P5Instance;
   private updateGridState: (row: number, col: number, value: number) => void;
   private getGridState: () => number[][];
   private rows: number;
@@ -1124,7 +1140,7 @@ class SwipeByRadiationProgram implements Program {
   private currentFillRay: number = 0;
 
   constructor(
-    p: any,
+    p: P5Instance,
     updateGridState: (row: number, col: number, value: number) => void,
     getGridState: () => number[][],
     rows: number,
@@ -1329,7 +1345,7 @@ class SwipeByRadiationProgram implements Program {
   }
 }
 
-export const proliferationSketch: Sketch = (p) => {
+export const proliferationSketch: Sketch = (p: P5Instance) => {
   let brickImg: any;
   let clayImg: any;
   let brickImgGray: any; // Grayscale version of brick image
@@ -1494,10 +1510,10 @@ export const proliferationSketch: Sketch = (p) => {
       brickImgGray.loadPixels();
       
       for (let i = 0; i < brickImg.pixels.length; i += 4) {
-        let r = brickImg.pixels[i];
-        let g = brickImg.pixels[i + 1];
-        let b = brickImg.pixels[i + 2];
-        let gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b); // Standard grayscale conversion
+        const r = brickImg.pixels[i];
+        const g = brickImg.pixels[i + 1];
+        const b = brickImg.pixels[i + 2];
+        const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b); // Standard grayscale conversion
         
         brickImgGray.pixels[i] = gray;     // red
         brickImgGray.pixels[i + 1] = gray; // green  
@@ -1512,10 +1528,10 @@ export const proliferationSketch: Sketch = (p) => {
       clayImgGray.loadPixels();
       
       for (let i = 0; i < clayImg.pixels.length; i += 4) {
-        let r = clayImg.pixels[i];
-        let g = clayImg.pixels[i + 1];
-        let b = clayImg.pixels[i + 2];
-        let gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b); // Standard grayscale conversion
+        const r = clayImg.pixels[i];
+        const g = clayImg.pixels[i + 1];
+        const b = clayImg.pixels[i + 2];
+        const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b); // Standard grayscale conversion
         
         clayImgGray.pixels[i] = gray;     // red
         clayImgGray.pixels[i + 1] = gray; // green  
