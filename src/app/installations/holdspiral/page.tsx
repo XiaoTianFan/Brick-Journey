@@ -15,7 +15,7 @@ const githubConfig: GitHubRepoConfig = {
 }
 
 export default function HoldSpiralPage() {
-  const [useGitHub, setUseGitHub] = useState(true) // Default to GitHub images
+  const [useGitHub] = useState(true) // Default to GitHub images
   const [isLoading, setIsLoading] = useState(false)
   
   const handleLoadingChange = (loading: boolean) => {

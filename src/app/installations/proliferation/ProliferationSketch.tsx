@@ -1,4 +1,3 @@
-import React, { useRef, useEffect } from 'react'
 import type { Sketch } from '@p5-wrapper/react'
 
 // Type for p5 instance - using a more specific type
@@ -9,11 +8,34 @@ interface P5Instance {
   mouseY: number
   windowWidth: number
   windowHeight: number
-  createCanvas: (width: number, height: number) => void
+  createCanvas: (width: number, height: number) => { parent: (element: HTMLElement) => void }
   background: (r: number, g?: number, b?: number) => void
   fill: (r: number, g?: number, b?: number) => void
   rect: (x: number, y: number, w: number, h: number) => void
-  [key: string]: any // Allow other p5 methods
+  frameRate: (fps: number) => void
+  resizeCanvas: (width: number, height: number) => void
+  loadImage: (path: string) => Promise<P5Image>
+  createImage: (width: number, height: number) => P5Image
+  canvas: HTMLCanvasElement
+  textAlign: (horizAlign: string, vertAlign?: string) => void
+  textSize: (size: number) => void
+  text: (str: string, x: number, y: number) => void
+  push: () => void
+  pop: () => void
+  translate: (x: number, y: number) => void
+  scale: (s: number) => void
+  image: (img: P5Image, x: number, y: number, w: number, h: number) => void
+  CENTER: string
+  [key: string]: unknown // Allow other p5 methods
+}
+
+// Type for p5 image objects
+interface P5Image {
+  width: number
+  height: number
+  pixels: Uint8ClampedArray
+  loadPixels: () => void
+  updatePixels: () => void
 }
 
 // --- Configuration ---
@@ -1346,10 +1368,10 @@ class SwipeByRadiationProgram implements Program {
 }
 
 export const proliferationSketch: Sketch = (p: P5Instance) => {
-  let brickImg: any;
-  let clayImg: any;
-  let brickImgGray: any; // Grayscale version of brick image
-  let clayImgGray: any;  // Grayscale version of clay image
+  let brickImg: P5Image | null = null;
+  let clayImg: P5Image | null = null;
+  let brickImgGray: P5Image | null = null; // Grayscale version of brick image
+  let clayImgGray: P5Image | null = null;  // Grayscale version of clay image
   let canvasParentRef: HTMLElement | null = null;
   let imagesLoaded: boolean = false;
 
@@ -1411,7 +1433,9 @@ export const proliferationSketch: Sketch = (p: P5Instance) => {
     if (!canvasParentRef) return;
     const canvasWidth = canvasParentRef.offsetWidth;
     const canvasHeight = canvasParentRef.offsetHeight;
-    p.resizeCanvas(canvasWidth, canvasHeight);
+    const canvas = p.createCanvas(canvasWidth, canvasHeight);
+    canvas.parent(canvasParentRef);
+    p.frameRate(FRAME_RATE);
 
     if (FIX_ROWS) {
       // Fix rows, calculate columns to fit width
@@ -1493,7 +1517,8 @@ export const proliferationSketch: Sketch = (p: P5Instance) => {
 
     const canvasWidth = canvasParentRef.offsetWidth;
     const canvasHeight = canvasParentRef.offsetHeight;
-    p.createCanvas(canvasWidth, canvasHeight).parent(canvasParentRef);
+    const canvas = p.createCanvas(canvasWidth, canvasHeight);
+    canvas.parent(canvasParentRef);
     p.frameRate(FRAME_RATE);
 
     // Load images asynchronously
@@ -1630,10 +1655,14 @@ export const proliferationSketch: Sketch = (p: P5Instance) => {
         // Draw images to fill entire cell area with optional grayscale
         if (gridState[r] && gridState[r][c] === CELL_BRICK && brickImg) {
           const imageToUse = useBrickGrayscale ? brickImgGray : brickImg;
-          p.image(imageToUse, finalX, finalY, scaledImgWidth, scaledImgHeight);
+          if (imageToUse) {
+            p.image(imageToUse, finalX, finalY, scaledImgWidth, scaledImgHeight);
+          }
         } else if (clayImg) {
           const imageToUse = useClayGrayscale ? clayImgGray : clayImg;
-          p.image(imageToUse, finalX, finalY, scaledImgWidth, scaledImgHeight);
+          if (imageToUse) {
+            p.image(imageToUse, finalX, finalY, scaledImgWidth, scaledImgHeight);
+          }
         }
       }
     }
